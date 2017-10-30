@@ -1,0 +1,135 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+
+#define TRUE 1
+#define FALSE 0
+
+#define MAX_ITERATIONS 256
+#define TILE_SIZE 512
+
+#define DRAWING_WIDTH TILE_SIZE/2
+#define DRAWING_HEIGHT TILE_SIZE/2
+#define DRAWING_ZOOM 6
+
+typedef struct _complex {
+    double re;
+    double im;
+} complex;
+
+int isInMandelbrot (double x, double y);
+int mandelbrotEscapeTime (int maxIterations, double x, double y);
+double power(int base, int exponent);
+void escapeGrid(int grid[TILE_SIZE][TILE_SIZE], complex center, int zoom);
+
+
+int main (int argc, char* argv[]) {
+
+    complex center;
+    center.re = 0;
+    center.im = 0;
+    
+    int grid[TILE_SIZE][TILE_SIZE];
+    
+    escapeGrid(grid, center, 6);
+    
+    int y = 0;
+    while (y < TILE_SIZE) {
+        int x = 0;
+        while (x < TILE_SIZE) {
+            if (grid[y][x] == 256) {
+                printf("*");
+            } else {
+                printf(" ");
+            }
+            x++;
+        }
+        printf("\n");
+    
+        y++;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+// Function that fills 2D array with number of steps for each pixel
+void escapeGrid(int grid[TILE_SIZE][TILE_SIZE], complex center, int zoom) {
+    int drawingPointX;
+    int drawingPointY;
+    
+    double scaledPointX, scaledPointY;
+    double scale;
+        
+    scale = 1 / power(2, zoom);
+    
+    
+    drawingPointY = (-1 * DRAWING_HEIGHT);
+    int y = 0;
+    while (drawingPointY < DRAWING_HEIGHT/2) {
+        drawingPointX = (-1 * DRAWING_WIDTH);
+        int x = 0;
+        while (drawingPointX < DRAWING_WIDTH/2) {
+            
+            // calculate current point
+            scaledPointX = drawingPointX * scale;
+            scaledPointY = drawingPointY * scale;
+    
+            grid[y][x] = mandelbrotEscapeTime(MAX_ITERATIONS, scaledPointX, scaledPointY);
+            
+            drawingPointX++;
+            x++;
+        }
+
+        y++;
+        drawingPointY++;
+    }
+}
+
+// helper function to figure out if iteration == MAX_ITERATIONS
+int isInMandelbrot (double x, double y) {
+    int result;
+    
+    if (mandelbrotEscapeTime (MAX_ITERATIONS, x, y) == MAX_ITERATIONS) {
+        result = TRUE;
+    } else {
+        result = FALSE;
+    }
+    
+    return result;
+}
+
+// determines whether or not a pixel escapes that mandelbrot set
+// if it does, then it is not plotted
+// if it doesnt (iteration == MAX_ITERATIONS) then it is plotted
+int mandelbrotEscapeTime (int maxIterations, double x0, double y0) {
+    
+    int iteration;
+    double x, y, calcTempX;
+    
+    x = 0;
+    y = 0;
+    iteration = 0;
+    while ((iteration < maxIterations) &&
+            (x * x + y * y < 2 * 2)) {
+        calcTempX = (x * x - y * y) + x0;
+        y = (2 * x * y) + y0;
+        x = calcTempX;
+    
+        iteration++;
+    }
+    
+    return iteration;
+}
+
+
+// calculates the power of something
+double power(int base, int exponent) {
+    int i = 0;
+    double calcResult = 1;
+    while (i < exponent) {
+        calcResult *= base;
+        i++;
+    }
+    
+    return calcResult;
+}
