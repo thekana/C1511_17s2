@@ -37,7 +37,7 @@ int main (int argc, char *argv[]) {
 // Takes two strings, and if they are the same,
 // returns TRUE, or FALSE otherwise.
 int stringsEqual (char *stringA, char *stringB) {
-    int result = -1, i=0,a1=0,b1=0;
+    int result = TRUE, i=0,a1=0,b1=0;
     while(stringA[i]!='\0'){
         a1++;
         i++;
@@ -50,17 +50,16 @@ int stringsEqual (char *stringA, char *stringB) {
     }
     i=0;
     if(a1==b1){
-        while((i<a1+1)&&result!=0) {
+        while(result == TRUE && (i<a1)) {
             if(stringA[i]==stringB[i]){
-                result = 1;
+                result = TRUE;
             } else {
-                result = 0;
-                
+                result = FALSE;
             }
             i++;
         }
     } else {
-        result = 0;
+        result = FALSE;
     }
     
     return result;
